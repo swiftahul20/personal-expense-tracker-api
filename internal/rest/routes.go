@@ -18,8 +18,7 @@ func NewRouter(h *Handler, authHandler *auth.Handler, jwtManager *auth.JWTManage
 	r.Use(StructuredLogger(log))
 
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins: []string{"http://localhost:5173",
-			"http://swiftahul20-expense-tracker.vercel.app"},
+		AllowedOrigins:   []string{"http://localhost:5173", "https://swiftahul20-expense-tracker.vercel.app"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Content-Type", "Authorization"},
 		ExposedHeaders:   []string{"Content-Disposition"},
