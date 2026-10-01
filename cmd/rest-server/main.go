@@ -10,6 +10,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/swiftahul20/expense-tracker/internal/auth"
+	"github.com/swiftahul20/expense-tracker/internal/category"
 	"github.com/swiftahul20/expense-tracker/internal/config"
 	"github.com/swiftahul20/expense-tracker/internal/expense"
 	"github.com/swiftahul20/expense-tracker/internal/logger"
@@ -55,8 +56,10 @@ func main() {
 
 	expenseHandler := rest.NewHandler(expenseStore)
 	authHandler := auth.NewHandler(userStore, jwtManager, cfg.RefreshTTL)
+	categoryStore := category.NewPostgresStore(pool)
+	categoryHandler := rest.NewCategoryHandler(categoryStore)
 
-	router := rest.NewRouter(expenseHandler, authHandler, jwtManager, loginLimiter, healthHandler, log)
+	router := rest.NewRouter(expenseHandler, authHandler, jwtManager, loginLimiter, healthHandler, categoryHandler, log)
 
 	port := os.Getenv("PORT")
 	if port == "" {

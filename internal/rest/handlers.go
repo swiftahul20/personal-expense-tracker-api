@@ -60,10 +60,15 @@ func (h *Handler) ListExpenses(w http.ResponseWriter, r *http.Request) {
 	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
 
 	params := expense.ListParams{
-		Page:     page,
-		Limit:    limit,
-		Category: r.URL.Query().Get("category"),
-		Search:   r.URL.Query().Get("search"),
+		Page:   page,
+		Limit:  limit,
+		Search: r.URL.Query().Get("search"),
+	}
+
+	if catIDStr := r.URL.Query().Get("category_id"); catIDStr != "" {
+		if catID, err := strconv.Atoi(catIDStr); err == nil {
+			params.CategoryID = &catID
+		}
 	}
 
 	if fromStr := r.URL.Query().Get("from"); fromStr != "" {
@@ -189,9 +194,10 @@ func (h *Handler) UpdateExpense(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var payload struct {
-		Amount      *float64 `json:"amount"`
-		Category    *string  `json:"category"`
-		Description *string  `json:"description"`
+		Amount        *float64 `json:"amount"`
+		CategoryID    *int     `json:"category_id"`
+		SubCategoryID *int     `json:"sub_category_id"`
+		Description   *string  `json:"description"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
 		writeError(w, http.StatusBadRequest, "invalid request body")
@@ -199,9 +205,10 @@ func (h *Handler) UpdateExpense(w http.ResponseWriter, r *http.Request) {
 	}
 
 	updates := expense.ExpenseUpdate{
-		Amount:      payload.Amount,
-		Category:    payload.Category,
-		Description: payload.Description,
+		Amount:        payload.Amount,
+		CategoryID:    payload.CategoryID,
+		SubCategoryID: payload.SubCategoryID,
+		Description:   payload.Description,
 	}
 
 	updated, err := h.store.Update(userID, id, updates)
@@ -345,8 +352,13 @@ func (h *Handler) ExportExpenses(w http.ResponseWriter, r *http.Request) {
 	userID, _ := auth.UserIDFromContext(r.Context())
 
 	params := expense.ListParams{
-		Category: r.URL.Query().Get("category"),
-		Search:   r.URL.Query().Get("search"),
+		Search: r.URL.Query().Get("search"),
+	}
+
+	if catIDStr := r.URL.Query().Get("category_id"); catIDStr != "" {
+		if catID, err := strconv.Atoi(catIDStr); err == nil {
+			params.CategoryID = &catID
+		}
 	}
 
 	if fromStr := r.URL.Query().Get("from"); fromStr != "" {
@@ -377,8 +389,8 @@ func (h *Handler) ExportExpenses(w http.ResponseWriter, r *http.Request) {
 		writer.Write([]string{
 			strconv.Itoa(e.ID),
 			strconv.FormatFloat(e.Amount, 'f', 2, 64),
-			e.Category,
-			e.SubCategory,
+			e.CategoryName,
+			e.SubCategoryName,
 			e.Description,
 			e.Date.Format("2006-01-02"),
 		})

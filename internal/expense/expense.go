@@ -6,17 +6,16 @@ import (
 	"time"
 )
 
-// types
 type Expense struct {
-	ID          int       `json:"id"`
-	Amount      float64   `json:"amount"`
-	Category    string    `json:"category"`
-	SubCategory string    `json:"sub_category,omitempty"`
-	Description string    `json:"description"`
-	Date        time.Time `json:"date"`
+	ID              int       `json:"id"`
+	Amount          float64   `json:"amount"`
+	CategoryID      *int      `json:"category_id"`
+	CategoryName    string    `json:"category_name,omitempty"`
+	SubCategoryID   *int      `json:"sub_category_id"`
+	SubCategoryName string    `json:"sub_category_name,omitempty"`
+	Description     string    `json:"description"`
+	Date            time.Time `json:"date"`
 }
-
-// =======================================
 
 var (
 	ErrInvalidAmount = errors.New("amount must be greater than 0")
@@ -29,8 +28,7 @@ func (e *Expense) Validate() error {
 		return ErrInvalidAmount
 	}
 
-	e.Category = strings.TrimSpace(e.Category)
-	if e.Category == "" {
+	if e.CategoryID == nil {
 		return ErrEmptyCategory
 	}
 

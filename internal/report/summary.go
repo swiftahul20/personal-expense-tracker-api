@@ -30,7 +30,11 @@ type DayTotal struct {
 func ByCategory(expenses []expense.Expense) []CategoryTotal {
 	groups := make(map[string][]expense.Expense)
 	for _, e := range expenses {
-		groups[e.Category] = append(groups[e.Category], e)
+		key := e.CategoryName
+		if key == "" {
+			key = "Uncategorized"
+		}
+		groups[key] = append(groups[key], e)
 	}
 
 	result := make([]CategoryTotal, 0, len(groups))

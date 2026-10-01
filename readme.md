@@ -4,10 +4,12 @@ A REST API for tracking personal expenses, built in Go while learning the langua
 
 ## Features
 
-- **Full CRUD** for expenses (amount, category, sub-category, description, date)
-- **Pagination** on the expense list (page/limit, capped at 100 per page, total count included)
+- **Full CRUD** for expenses (amount, category ID, sub-category ID, description, date)
+- **User-managed categories** with nested sub-categories and full CRUD operations
+- **Pagination and filtering** on the expense list (page/limit, category, text search, date range; limit capped at 100)
+- **CSV export** for filtered expenses
 - **Category, monthly, and daily summaries** — each includes both totals and the underlying list of expenses for that
-- **Swagger/OpenAPI documentation** — interactive API explorer at `/swagger/index.html`, generated via `swaggo/swag` from code annotationsgroup
+- **Swagger/OpenAPI documentation** — interactive API explorer at `/swagger/index.html`, generated via `swaggo/swag` from code annotations
 - **Combined dashboard endpoint** — expenses + all three summaries in a single response
 - **JWT authentication** — short-lived access tokens + long-lived refresh tokens, rotated on every use
 - **Logout** — revokes a refresh token server-side
@@ -19,11 +21,11 @@ A REST API for tracking personal expenses, built in Go while learning the langua
 
 ## Tech Stack
 
-- **Language:** Go
+- **Language:** Go 1.27+
 - **Router:** [chi](https://github.com/go-chi/chi)
 - **Database:** PostgreSQL, via [pgx](https://github.com/jackc/pgx)
 - **Auth:** [golang-jwt](https://github.com/golang-jwt/jwt) + bcrypt password hashing
-- **Config:** environment variables via `.env` ([godotenv](https://github.com/joho/godotenv))
+- **Config:** environment variables via `.env` ([godotenv](https://github.com/joho/godotenv)); `PORT` defaults to `8080`
 - **Containerization:** Docker, Docker Compose (multi-stage build)
 - **API Docs:** [swaggo/swag](https://github.com/swaggo/swag) (OpenAPI/Swagger generation)
 - **Deployment:** [Aiven](https://aiven.io) (managed PostgreSQL + API)
@@ -36,7 +38,8 @@ The project follows a layered structure with domain logic decoupled from storage
 cmd/
 └── rest-server/       # entry point, wires config, DB pool, handlers, routes
 internal/
-├── expense/           # domain model, Store interface, Postgres implementation, validation
+├── expense/           # domain model, filters, Store interface, Postgres implementation, validation
+├── category/          # category/sub-category model, Store interface, Postgres implementation
 ├── user/              # user domain, Store interface, Postgres implementation
 ├── auth/              # password hashing, JWT issuing/verification, refresh tokens, middleware
 ├── ratelimit/         # in-memory per-IP rate limiter
@@ -52,6 +55,7 @@ internal/
 ### Prerequisites
 
 - Docker and Docker Compose
+- Go 1.27+ (only required when running the server outside Docker)
 
 ### Setup
 
@@ -88,12 +92,26 @@ internal/
        created_at TIMESTAMPTZ NOT NULL DEFAULT now()
    );
 
+   CREATE TABLE categories (
+       id SERIAL PRIMARY KEY,
+       user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+       name VARCHAR(100) NOT NULL,
+       UNIQUE (user_id, name)
+     );
+
+   CREATE TABLE sub_categories (
+       id SERIAL PRIMARY KEY,
+       category_id INTEGER NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
+       name VARCHAR(100) NOT NULL,
+       UNIQUE (category_id, name)
+     );
+
    CREATE TABLE expenses (
        id SERIAL PRIMARY KEY,
-       user_id INTEGER REFERENCES users(id),
+       user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
        amount NUMERIC(12, 2) NOT NULL,
-       category VARCHAR(100) NOT NULL,
-       sub_category VARCHAR(100) NOT NULL DEFAULT '',
+       category_id INTEGER REFERENCES categories(id) ON DELETE SET NULL,
+       sub_category_id INTEGER REFERENCES sub_categories(id) ON DELETE SET NULL,
        description TEXT,
        date TIMESTAMPTZ NOT NULL
    );
@@ -106,6 +124,8 @@ internal/
        created_at TIMESTAMPTZ NOT NULL DEFAULT now()
    );
    ```
+
+The API does not run migrations automatically. Run the schema statements once against the PostgreSQL database before using the protected endpoints. If the database already contains the older expense schema, migrate it to the category and sub-category columns before starting the API.
 
 The API is now available at `http://localhost:8080`.
 
@@ -154,17 +174,33 @@ Swagger docs for the live API: `https://01a0d77e-2ac4-781d-a870-26f4e9a39a72-808
 | POST   | `/auth/logout`   |      No       | Revoke a refresh token                                                    |
 | GET    | `/auth/me`       |      Yes      | Get the authenticated user's profile                                      |
 
+### Health
+
+| Method | Endpoint  | Auth required | Description                                      |
+| ------ | --------- | :-----------: | ------------------------------------------------ |
+| GET    | `/health` |      No       | Check API availability and database connectivity |
+
 ### Expenses
 
 All routes below require `Authorization: Bearer <access_token>`.
 
-| Method | Endpoint         | Description                                                                           |
-| ------ | ---------------- | ------------------------------------------------------------------------------------- |
-| GET    | `/expenses`      | List the authenticated user's expenses, paginated (`?page=`, `?limit=`, `?category=`) |
-| POST   | `/expenses`      | Create an expense                                                                     |
-| GET    | `/expenses/{id}` | Get a single expense                                                                  |
-| PUT    | `/expenses/{id}` | Partially update an expense                                                           |
-| DELETE | `/expenses/{id}` | Delete an expense                                                                     |
+| Method | Endpoint           | Description                                                      |
+| ------ | ------------------ | ---------------------------------------------------------------- |
+| GET    | `/expenses`        | List the authenticated user's expenses, paginated and filterable |
+| POST   | `/expenses`        | Create an expense                                                |
+| GET    | `/expenses/export` | Download filtered expenses as `expenses.csv`                     |
+| GET    | `/expenses/{id}`   | Get a single expense                                             |
+| PUT    | `/expenses/{id}`   | Partially update an expense                                      |
+| DELETE | `/expenses/{id}`   | Delete an expense                                                |
+
+`GET /expenses` supports these optional query parameters:
+
+- `page` and `limit` (default `1` and `20`; maximum limit `100`)
+- `category_id` to filter by category
+- `search` to search descriptions case-insensitively
+- `from` and `to` using `YYYY-MM-DD` date boundaries
+
+`GET /expenses/export` accepts the same filters and returns CSV with the columns `ID`, `Amount`, `Category`, `Sub-Category`, `Description`, and `Date`.
 
 `GET /expenses` response shape:
 
@@ -187,7 +223,23 @@ All routes below require `Authorization: Bearer <access_token>`.
 | GET    | `/summary/day`      | Totals grouped by day, including each group's expenses      |
 | GET    | `/dashboard`        | Expenses + all three summaries combined in one response     |
 
-## Example: Register → Login → Create Expense
+### Categories
+
+All category routes require `Authorization: Bearer <access_token>`.
+
+| Method | Endpoint                          | Description                                |
+| ------ | --------------------------------- | ------------------------------------------ |
+| GET    | `/categories`                     | List categories with nested sub-categories |
+| POST   | `/categories`                     | Create a category                          |
+| PUT    | `/categories/{id}`                | Rename a category                          |
+| DELETE | `/categories/{id}`                | Delete a category                          |
+| POST   | `/categories/{id}/sub-categories` | Create a sub-category                      |
+| PUT    | `/sub-categories/{id}`            | Rename a sub-category                      |
+| DELETE | `/sub-categories/{id}`            | Delete a sub-category                      |
+
+Category and sub-category write requests use `{ "name": "..." }`. Category names are scoped to the authenticated user. Deleting a category or sub-category sets matching expense references to `null`.
+
+## Example: Register → Login → Create Category → Create Expense
 
 ```bash
 # Register
@@ -197,11 +249,17 @@ curl -X POST http://localhost:8080/auth/register \
 
 # Response includes access_token and refresh_token
 
+# Create a category and note its returned id
+curl -X POST http://localhost:8080/categories \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <access_token>" \
+  -d '{"name": "Food"}'
+
 # Create an expense
 curl -X POST http://localhost:8080/expenses \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer <access_token>" \
-  -d '{"amount": 50000, "category": "food", "sub_category": "dine-in", "description": "Lunch", "date": "2026-09-21T00:00:00Z"}'
+  -d '{"amount": 50000, "category_id": 1, "description": "Lunch", "date": "2026-09-21T00:00:00Z"}'
 ```
 
 ## Notes
