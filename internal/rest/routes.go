@@ -13,7 +13,7 @@ import (
 	_ "github.com/swiftahul20/expense-tracker/docs"
 )
 
-func NewRouter(h *Handler, authHandler *auth.Handler, jwtManager *auth.JWTManager, loginLimiter *ratelimit.Limiter, healthHandler *HealthHandler, categoryHandler *CategoryHandler, log *slog.Logger) *chi.Mux {
+func NewRouter(h *Handler, authHandler *auth.Handler, jwtManager *auth.JWTManager, loginLimiter *ratelimit.Limiter, healthHandler *HealthHandler, categoryHandler *CategoryHandler, receiptHandler *ReceiptHandler, log *slog.Logger) *chi.Mux {
 	r := chi.NewRouter()
 	r.Use(StructuredLogger(log))
 
@@ -43,6 +43,7 @@ func NewRouter(h *Handler, authHandler *auth.Handler, jwtManager *auth.JWTManage
 		r.Route("/expenses", func(r chi.Router) {
 			r.Get("/", h.ListExpenses)
 			r.Post("/", h.CreateExpense)
+			r.Post("/scan-receipt", receiptHandler.ScanReceipt)
 			r.Get("/export", h.ExportExpenses)
 			r.Get("/{id}", h.GetExpense)
 			r.Put("/{id}", h.UpdateExpense)

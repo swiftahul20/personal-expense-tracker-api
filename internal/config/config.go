@@ -4,16 +4,20 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/joho/godotenv"
 )
 
 type Config struct {
-	DatabaseURL string
-	JWTSecret   string
-	JWTTTL      time.Duration
-	RefreshTTL  time.Duration
+	DatabaseURL     string
+	JWTSecret       string
+	JWTTTL          time.Duration
+	RefreshTTL      time.Duration
+	LLMProvider     string
+	AnthropicAPIKey string
+	GeminiAPIKey    string
 }
 
 func Load() (*Config, error) {
@@ -41,10 +45,18 @@ func Load() (*Config, error) {
 		return nil, fmt.Errorf("invalid REFRESH_TTL_DAYS: %w", err)
 	}
 
+	llmProvider := strings.TrimSpace(strings.ToLower(os.Getenv("LLM_PROVIDER")))
+	if llmProvider == "" {
+		llmProvider = "anthropic"
+	}
+
 	return &Config{
-		DatabaseURL: dbURL,
-		JWTSecret:   jwtSecret,
-		JWTTTL:      time.Duration(ttlHours) * time.Hour,
-		RefreshTTL:  time.Duration(ttlDays) * 24 * time.Hour,
+		DatabaseURL:     dbURL,
+		JWTSecret:       jwtSecret,
+		JWTTTL:          time.Duration(ttlHours) * time.Hour,
+		RefreshTTL:      time.Duration(ttlDays) * 24 * time.Hour,
+		LLMProvider:     llmProvider,
+		AnthropicAPIKey: os.Getenv("ANTHROPIC_API_KEY"),
+		GeminiAPIKey:    os.Getenv("GEMINI_API_KEY"),
 	}, nil
 }

@@ -68,6 +68,14 @@ internal/
    JWT_SECRET=<a long random string>
    JWT_TTL_HOURS=1
    REFRESH_TTL_DAYS=7
+
+   # Receipt scanning provider. Use either "anthropic" or "gemini".
+   LLM_PROVIDER=gemini
+   ANTHROPIC_API_KEY=your_anthropic_api_key_here
+   GEMINI_API_KEY=your_gemini_api_key_here
+
+   # Leave the unused provider key blank.
+
    ```
 
 2. Start everything:

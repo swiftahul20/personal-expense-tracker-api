@@ -15,6 +15,7 @@ import (
 	"github.com/swiftahul20/expense-tracker/internal/expense"
 	"github.com/swiftahul20/expense-tracker/internal/logger"
 	"github.com/swiftahul20/expense-tracker/internal/ratelimit"
+	"github.com/swiftahul20/expense-tracker/internal/receipt"
 	"github.com/swiftahul20/expense-tracker/internal/rest"
 	"github.com/swiftahul20/expense-tracker/internal/user"
 )
@@ -58,8 +59,10 @@ func main() {
 	authHandler := auth.NewHandler(userStore, jwtManager, cfg.RefreshTTL)
 	categoryStore := category.NewPostgresStore(pool)
 	categoryHandler := rest.NewCategoryHandler(categoryStore)
+	receiptClient := receipt.NewClientForProvider(cfg.LLMProvider, cfg.AnthropicAPIKey, cfg.GeminiAPIKey)
+	receiptHandler := rest.NewReceiptHandler(categoryStore, receiptClient)
 
-	router := rest.NewRouter(expenseHandler, authHandler, jwtManager, loginLimiter, healthHandler, categoryHandler, log)
+	router := rest.NewRouter(expenseHandler, authHandler, jwtManager, loginLimiter, healthHandler, categoryHandler, receiptHandler, log)
 
 	port := os.Getenv("PORT")
 	if port == "" {
