@@ -22,8 +22,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      # DATABASE_URL: ${DATABASE_URL}
-      DATABASE_URL: postgres://expense_user:expense_pass@postgres:5432/expense_tracker
+      DATABASE_URL: ${DATABASE_URL}
       JWT_SECRET: ${JWT_SECRET}
       JWT_TTL_HOURS: ${JWT_TTL_HOURS}
       REFRESH_TTL_DAYS: ${REFRESH_TTL_DAYS}

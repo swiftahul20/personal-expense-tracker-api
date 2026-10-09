@@ -11,6 +11,7 @@ A REST API for tracking personal expenses, built in Go while learning the langua
 - **Category, monthly, and daily summaries** — each includes both totals and the underlying list of expenses for that
 - **Swagger/OpenAPI documentation** — interactive API explorer at `/swagger/index.html`, generated via `swaggo/swag` from code annotations
 - **Combined dashboard endpoint** — expenses + all three summaries in a single response
+- **Health check endpoint** — confirms the API is running and PostgreSQL is reachable at `/health`
 - **JWT authentication** — short-lived access tokens + long-lived refresh tokens, rotated on every use
 - **Logout** — revokes a refresh token server-side
 - **Current user endpoint** — fetch the authenticated user's own profile
@@ -28,7 +29,6 @@ A REST API for tracking personal expenses, built in Go while learning the langua
 - **Config:** environment variables via `.env` ([godotenv](https://github.com/joho/godotenv)); `PORT` defaults to `8080`
 - **Containerization:** Docker, Docker Compose (multi-stage build)
 - **API Docs:** [swaggo/swag](https://github.com/swaggo/swag) (OpenAPI/Swagger generation)
-- **Deployment:** [Aiven](https://aiven.io) (managed PostgreSQL + API)
 
 ## Architecture
 
@@ -63,7 +63,7 @@ internal/
 
    ```
    DATABASE_URL=postgres://expense_user:expense_pass@postgres:5432/expense_tracker
-   # For a managed Postgres provider (e.g. Aiven), use the provided connection string with sslmode=require:
+   # For a managed PostgreSQL provider, use the provided connection string with sslmode=require:
    DATABASE_URL=postgres://<user>:<password>@<host>:<port>/<database>?sslmode=require
    JWT_SECRET=<a long random string>
    JWT_TTL_HOURS=1
@@ -161,14 +161,9 @@ docker compose down -v    # stop containers and wipe the database volume
 
 The API is deployed and publicly accessible:
 
-[API Health Check](https://01a0d77e-2ac4-781d-a870-26f4e9a39a72-8080.eur-1.aiven.app/health)
+[Live API Health Check](https://api.miftahulhabib.my.id/health)
 
-- **Hosting:** [Aiven](https://aiven.io) (Docker-based web service, free tier)
-- **Database:** [Aiven](https://aiven.io) (managed PostgreSQL, free tier, requires `sslmode=require`)
-
-Note: Aiven's free tier spins down after 15 minutes of inactivity — the first request after idle time may take 10–30 seconds to respond while the service wakes up.
-
-Swagger docs for the live API: `https://01a0d77e-2ac4-781d-a870-26f4e9a39a72-8080.eur-1.aiven.app/swagger/index.html`
+Swagger docs for the live API: [https://api.miftahulhabib.my.id/swagger/index.html](https://api.miftahulhabib.my.id/swagger/index.html)
 
 ## API Reference
 

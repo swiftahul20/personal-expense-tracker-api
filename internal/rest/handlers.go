@@ -315,7 +315,13 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// api check
+// @Tags         Health
+// @Produce      json
+// @Summary      Check API health
+// @Description  Confirms the API is responsive and that PostgreSQL is reachable.
+// @Success      200 {object} map[string]string "API and database are healthy"
+// @Failure      503 {object} map[string]string "API is reachable but database is unavailable"
+// @Router       /health [get]
 func NewHealthHandler(pool *pgxpool.Pool) *HealthHandler {
 	return &HealthHandler{pool: pool}
 }
