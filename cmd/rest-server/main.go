@@ -22,6 +22,7 @@ import (
 
 // @title           Expense Tracker API
 // @version         1.0
+// @host            api.miftahulhabib.my.id
 // @BasePath        /
 // @schemes         https
 // @securityDefinitions.apikey BearerAuth

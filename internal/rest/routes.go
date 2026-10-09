@@ -27,7 +27,17 @@ func NewRouter(h *Handler, authHandler *auth.Handler, jwtManager *auth.JWTManage
 	}))
 
 	r.Get("/health", healthHandler.Check)
-	r.Get("/swagger/*", httpSwagger.WrapHandler)
+	r.Get("/swagger/*", httpSwagger.Handler(
+		httpSwagger.UIConfig(map[string]string{
+			"requestInterceptor": `(req) => {
+				const h = req.headers["Authorization"];
+				if (h && !h.startsWith("Bearer ")) {
+					req.headers["Authorization"] = "Bearer " + h;
+				}
+				return req;
+			}`,
+		}),
+	))
 
 	r.Route("/auth", func(r chi.Router) {
 		r.Post("/register", authHandler.Register)

@@ -8,6 +8,7 @@
         "contact": {},
         "version": "1.0"
     },
+    "host": "api.miftahulhabib.my.id",
     "basePath": "/",
     "paths": {
         "/auth/login": {
@@ -19,7 +20,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "auth"
+                    "Auth"
                 ],
                 "parameters": [
                     {
@@ -81,7 +82,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "categories"
+                    "Categories"
                 ],
                 "summary": "List categories",
                 "responses": {
@@ -118,7 +119,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "categories"
+                    "Categories"
                 ],
                 "summary": "Create a category",
                 "parameters": [
@@ -165,7 +166,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "categories"
+                    "Categories"
                 ],
                 "summary": "Rename a category",
                 "parameters": [
@@ -221,7 +222,7 @@
                 ],
                 "description": "Existing expenses referencing this category will have their category set to null",
                 "tags": [
-                    "categories"
+                    "Categories"
                 ],
                 "summary": "Delete a category",
                 "parameters": [
@@ -263,7 +264,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "categories"
+                    "Categories"
                 ],
                 "summary": "Create a sub-category under a category",
                 "parameters": [
@@ -705,7 +706,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "categories"
+                    "Categories"
                 ],
                 "summary": "Rename a sub-category",
                 "parameters": [
@@ -751,7 +752,7 @@
                     }
                 ],
                 "tags": [
-                    "categories"
+                    "Categories"
                 ],
                 "summary": "Delete a sub-category",
                 "parameters": [

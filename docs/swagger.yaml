@@ -148,6 +148,7 @@ definitions:
       id:
         type: integer
     type: object
+host: api.miftahulhabib.my.id
 info:
   contact: {}
   title: Expense Tracker API
@@ -190,7 +191,7 @@ paths:
               type: string
             type: object
       tags:
-      - auth
+      - Auth
   /categories:
     get:
       description: Returns the authenticated user's categories with nested sub-categories
@@ -213,7 +214,7 @@ paths:
       - BearerAuth: []
       summary: List categories
       tags:
-      - categories
+      - Categories
     post:
       consumes:
       - application/json
@@ -241,7 +242,7 @@ paths:
       - BearerAuth: []
       summary: Create a category
       tags:
-      - categories
+      - Categories
   /categories/{id}:
     delete:
       description: Existing expenses referencing this category will have their category
@@ -265,7 +266,7 @@ paths:
       - BearerAuth: []
       summary: Delete a category
       tags:
-      - categories
+      - Categories
     put:
       consumes:
       - application/json
@@ -304,7 +305,7 @@ paths:
       - BearerAuth: []
       summary: Rename a category
       tags:
-      - categories
+      - Categories
   /categories/{id}/sub-categories:
     post:
       consumes:
@@ -338,7 +339,7 @@ paths:
       - BearerAuth: []
       summary: Create a sub-category under a category
       tags:
-      - categories
+      - Categories
   /dashboard:
     get:
       produces:
@@ -602,7 +603,7 @@ paths:
       - BearerAuth: []
       summary: Delete a sub-category
       tags:
-      - categories
+      - Categories
     put:
       consumes:
       - application/json
@@ -635,7 +636,7 @@ paths:
       - BearerAuth: []
       summary: Rename a sub-category
       tags:
-      - categories
+      - Categories
   /summary/category:
     get:
       produces:

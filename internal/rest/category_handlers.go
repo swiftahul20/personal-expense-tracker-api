@@ -25,7 +25,7 @@ type categoryRequest struct {
 // ListCategories godoc
 // @Summary      List categories
 // @Description  Returns the authenticated user's categories with nested sub-categories
-// @Tags         categories
+// @Tags         Categories
 // @Produce      json
 // @Security     BearerAuth
 // @Success      200 {array} category.Category
@@ -45,7 +45,7 @@ func (h *CategoryHandler) ListCategories(w http.ResponseWriter, r *http.Request)
 
 // CreateCategory godoc
 // @Summary      Create a category
-// @Tags         categories
+// @Tags         Categories
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
@@ -73,7 +73,7 @@ func (h *CategoryHandler) CreateCategory(w http.ResponseWriter, r *http.Request)
 
 // UpdateCategory godoc
 // @Summary      Rename a category
-// @Tags         categories
+// @Tags         Categories
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
@@ -109,7 +109,7 @@ func (h *CategoryHandler) UpdateCategory(w http.ResponseWriter, r *http.Request)
 // DeleteCategory godoc
 // @Summary      Delete a category
 // @Description  Existing expenses referencing this category will have their category set to null
-// @Tags         categories
+// @Tags         Categories
 // @Security     BearerAuth
 // @Param        id path int true "Category ID"
 // @Success      204 "No Content"
@@ -133,7 +133,7 @@ func (h *CategoryHandler) DeleteCategory(w http.ResponseWriter, r *http.Request)
 
 // CreateSubCategory godoc
 // @Summary      Create a sub-category under a category
-// @Tags         categories
+// @Tags         Categories
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
@@ -167,7 +167,7 @@ func (h *CategoryHandler) CreateSubCategory(w http.ResponseWriter, r *http.Reque
 
 // UpdateSubCategory godoc
 // @Summary      Rename a sub-category
-// @Tags         categories
+// @Tags         Categories
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
@@ -201,7 +201,7 @@ func (h *CategoryHandler) UpdateSubCategory(w http.ResponseWriter, r *http.Reque
 
 // DeleteSubCategory godoc
 // @Summary      Delete a sub-category
-// @Tags         categories
+// @Tags         Categories
 // @Security     BearerAuth
 // @Param        id path int true "Sub-category ID"
 // @Success      204 "No Content"

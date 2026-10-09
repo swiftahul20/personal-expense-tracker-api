@@ -71,7 +71,7 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusCreated, authResponse{AccessToken: token, User: created, RefreshToken: plainRefresh})
 }
 
-// @Tags         auth
+// @Tags         Auth
 // @Accept       json
 // @Produce      json
 // @Param        credentials body registerRequest true "Login credentials"

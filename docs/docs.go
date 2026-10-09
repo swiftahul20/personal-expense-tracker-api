@@ -24,7 +24,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "auth"
+                    "Auth"
                 ],
                 "parameters": [
                     {
@@ -86,7 +86,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "categories"
+                    "Categories"
                 ],
                 "summary": "List categories",
                 "responses": {
@@ -123,7 +123,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "categories"
+                    "Categories"
                 ],
                 "summary": "Create a category",
                 "parameters": [
@@ -170,7 +170,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "categories"
+                    "Categories"
                 ],
                 "summary": "Rename a category",
                 "parameters": [
@@ -226,7 +226,7 @@ const docTemplate = `{
                 ],
                 "description": "Existing expenses referencing this category will have their category set to null",
                 "tags": [
-                    "categories"
+                    "Categories"
                 ],
                 "summary": "Delete a category",
                 "parameters": [
@@ -268,7 +268,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "categories"
+                    "Categories"
                 ],
                 "summary": "Create a sub-category under a category",
                 "parameters": [
@@ -710,7 +710,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "categories"
+                    "Categories"
                 ],
                 "summary": "Rename a sub-category",
                 "parameters": [
@@ -756,7 +756,7 @@ const docTemplate = `{
                     }
                 ],
                 "tags": [
-                    "categories"
+                    "Categories"
                 ],
                 "summary": "Delete a sub-category",
                 "parameters": [
@@ -1132,7 +1132,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "",
+	Host:             "api.miftahulhabib.my.id",
 	BasePath:         "/",
 	Schemes:          []string{"https"},
 	Title:            "Expense Tracker API",
